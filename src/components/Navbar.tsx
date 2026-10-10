@@ -37,9 +37,10 @@ interface NavbarProps {
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
   currentUser: UserProfile;
+  onNavigateRoute?: (path: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, currentUser }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, currentUser, onNavigateRoute }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authState, setAuthState] = useState<AuthState>(supabaseAuth.getAuthState());
   const allUsers = storage.getAllUsers();
@@ -162,7 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, current
             ) : (
               <div className="flex items-center gap-2">
                 {/* Sandbox User Tenant Switcher for Testing Isolation */}
-                <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md text-xs border border-slate-200">
+                <div className="hidden sm:flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md text-xs border border-slate-200">
                   <User className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                   <select
                     value={currentUser.user_id}
@@ -179,11 +180,24 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, current
                 </div>
 
                 <button
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="px-2.5 py-1 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center gap-1 shadow-sm"
+                  onClick={() => {
+                    if (onNavigateRoute) onNavigateRoute('/login');
+                    else setIsAuthModalOpen(true);
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                >
+                  Log In
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (onNavigateRoute) onNavigateRoute('/signup');
+                    else setIsAuthModalOpen(true);
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors shadow-sm flex items-center gap-1.5"
                 >
                   <LogIn className="w-3.5 h-3.5" />
-                  <span>Sign In</span>
+                  <span>Get Started</span>
                 </button>
               </div>
             )}

@@ -214,6 +214,88 @@ class SupabaseAuthService {
   }
 
   /**
+   * Continue with Google OAuth
+   */
+  public async signInWithGoogle(): Promise<{ error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { error: 'Supabase is not configured.' };
+    }
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      return { error: error ? error.message : null };
+    } catch (err: any) {
+      return { error: err.message || 'Google OAuth failed' };
+    }
+  }
+
+  /**
+   * Sign in / Sign up with Phone Number (SMS OTP)
+   */
+  public async signInWithPhone(phoneNumber: string): Promise<{ error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { error: 'Supabase is not configured.' };
+    }
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: phoneNumber.trim(),
+      });
+      return { error: error ? error.message : null };
+    } catch (err: any) {
+      return { error: err.message || 'Phone OTP request failed' };
+    }
+  }
+
+  /**
+   * Verify Phone OTP Token
+   */
+  public async verifyPhoneOtp(phoneNumber: string, token: string): Promise<{ user: User | null; error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { user: null, error: 'Supabase is not configured.' };
+    }
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: phoneNumber.trim(),
+        token: token.trim(),
+        type: 'sms',
+      });
+      if (error) {
+        return { user: null, error: error.message };
+      }
+      this.user = data.user;
+      this.session = data.session;
+      this.notify();
+      if (data.user) {
+        await this.syncProfileRecord(data.user);
+      }
+      return { user: data.user, error: null };
+    } catch (err: any) {
+      return { user: null, error: err.message || 'OTP verification failed' };
+    }
+  }
+
+  /**
+   * Reset Password for Email
+   */
+  public async resetPasswordForEmail(email: string): Promise<{ error: string | null }> {
+    if (!isSupabaseConfigured) {
+      return { error: 'Supabase is not configured.' };
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}`,
+      });
+      return { error: error ? error.message : null };
+    } catch (err: any) {
+      return { error: err.message || 'Password reset request failed' };
+    }
+  }
+
+  /**
    * Ensures public.profiles row exists for user
    */
   public async syncProfileRecord(user: User, fallbackName?: string): Promise<UserProfile | null> {
