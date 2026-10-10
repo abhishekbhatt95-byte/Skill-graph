@@ -1,0 +1,6 @@
+{
+  "name": "SkillGraph AI — Career Intelligence & Skill Gap Analysis",
+  "description": "Evidence-supported skill gap intelligence, prerequisite-aware roadmaps, and career readiness platform for Data Analyst roles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
